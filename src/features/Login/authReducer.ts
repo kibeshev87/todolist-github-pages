@@ -46,7 +46,7 @@ export const setIsLoginTC = (data: LoginParamsType) => (dispatch: Dispatch<AuthR
 }
 
 export const logOutTC = () => (dispatch: Dispatch) => {
-    dispatch(appSetStatusAC('loading'))
+    //dispatch(appSetStatusAC('loading'))
     authAPI.logout()
         .then(res => {
             if(res.data.resultCode === 0) {
@@ -58,8 +58,4 @@ export const logOutTC = () => (dispatch: Dispatch) => {
         .catch((err: AxiosError) => {
             dispatch(appSetErrorAC(err.message))
         })
-        .finally(() => {
-            appSetStatusAC('idle')
-        })
-
 }

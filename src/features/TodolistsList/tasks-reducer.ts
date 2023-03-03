@@ -106,13 +106,11 @@ export const removeTaskTC = (taskId: string, todolistId: string) => (dispatch: D
         .finally(() => {
             dispatch(appSetStatusAC('idle'))
             dispatch(changeIsDisabledStatusAC(todolistId, 'idle'))
-
-            //dispatch(changeIsDisabledTaskAC(todolistId, taskId, 'idle'))
         })
 }
+
 export const addTaskTC = (title: string, todolistId: string) => (dispatch: Dispatch<TaskReducerActionsType>) => {
     dispatch(appSetStatusAC('loading'))
-
     todolistsAPI.createTask(todolistId, title)
         .then(res => {
             if (res.data.resultCode === 0) {
@@ -128,6 +126,7 @@ export const addTaskTC = (title: string, todolistId: string) => (dispatch: Dispa
             dispatch(appSetStatusAC('idle'))
         })
 }
+
 export const updateTaskTC = (taskId: string, domainModel: UpdateDomainTaskModelType, todolistId: string) =>
     (dispatch: Dispatch<TaskReducerActionsType>, getState: () => AppRootStateType) => {
         const state = getState()

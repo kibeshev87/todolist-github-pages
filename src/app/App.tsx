@@ -41,7 +41,6 @@ export function App() {
         </div>
     }
 
-
     const logoutHandler = () => {
         dispatch(logOutTC())
     }
