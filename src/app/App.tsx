@@ -1,38 +1,40 @@
-import React, {useEffect} from 'react'
+import React, {useCallback, useEffect} from 'react'
 import './App.css'
-import {TodolistsList} from '../features/TodolistsList/TodolistsList'
+import {TodolistsList} from 'features/todolistsList/TodolistsList'
+import {ErrorSnackbar} from 'components/errorSnackbar/ErrorSnackbar'
+import {useDispatch, useSelector} from 'react-redux'
+import {initializeAppTC} from 'app/app.reducer'
+import {BrowserRouter, Route, Routes} from 'react-router-dom'
+import {Login} from 'features/auth/Login'
+import {logoutTC} from 'features/auth/auth.reducer'
+import {
+    AppBar,
+    Button,
+    CircularProgress,
+    Container,
+    IconButton,
+    LinearProgress,
+    Toolbar,
+    Typography
+} from '@mui/material';
+import {Menu} from '@mui/icons-material'
+import {selectIsLoggedIn} from "features/auth/auth.selector";
+import {selectIsInitialized, selectStatus} from "app/app.selector";
 
-// You can learn about the difference by reading this guide on minimizing bundle size.
-// https://mui.com/guides/minimizing-bundle-size/
-// import { AppBar, Button, Container, IconButton, Toolbar, Typography } from '@mui/material';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import Container from '@mui/material/Container';
-import {Menu} from '@mui/icons-material';
-import LinearProgress from "@mui/material/LinearProgress";
-import {useAppDispatch, useAppSelector} from "./store";
-import {ErrorSnackbar} from "../components/ErrorSnackbar/ErrorSnackbar";
-import {Login} from "../features/Login/Login";
-import {Routes, Route, Navigate} from 'react-router-dom';
-import {initializeAppTC} from "./app-reducer";
-import {CircularProgress} from "@mui/material";
-import {logOutTC} from "../features/Login/authReducer";
 
-
-export function     App() {
-
-    const dispatch = useAppDispatch()
-    const status = useAppSelector(state => state.app.status)
-    const isInitialized = useAppSelector(state => state.app.isInitialized)
-    const isLogin = useAppSelector(state => state.auth.isLogin)
-
+function App() {
+    const status = useSelector(selectStatus)
+    const isInitialized = useSelector(selectIsInitialized)
+    const isLoggedIn = useSelector(selectIsLoggedIn)
+    const dispatch = useDispatch<any>()
 
     useEffect(() => {
         dispatch(initializeAppTC())
     }, [])
+
+    const logoutHandler = useCallback(() => {
+        dispatch(logoutTC())
+    }, [dispatch])
 
     if (!isInitialized) {
         return <div
@@ -41,40 +43,31 @@ export function     App() {
         </div>
     }
 
-    const logoutHandler = () => {
-        dispatch(logOutTC())
-    }
-
     return (
-        <div className="App">
-            <AppBar position="static">
-                <Toolbar>
-                    <IconButton edge="start" color="inherit" aria-label="menu">
-                        <Menu/>
-                    </IconButton>
-                    <Typography variant="h6">
-                        News
-                    </Typography>
-
-                    {isLogin && <Button color="inherit" onClick={logoutHandler}>Logout</Button>}
-
-                </Toolbar>
-            </AppBar>
-
-            {status === 'loading' && <LinearProgress color="secondary"/>}
-
-            <Container fixed>
-
-                <Routes>
-                    <Route path='/' element={<TodolistsList/>}/>
-                    <Route path='login' element={<Login/>}/>
-                    <Route path='404' element={<h1 style={{textAlign: 'center'}}>404:PAGE NOT FOUND</h1>}/>
-                    <Route path='*' element={<Navigate to={'404'}/>}/>
-                </Routes>
-
-            </Container>
-
-            <ErrorSnackbar/>
-        </div>
+        <BrowserRouter>
+            <div className="App">
+                <ErrorSnackbar/>
+                <AppBar position="static">
+                    <Toolbar>
+                        <IconButton edge="start" color="inherit" aria-label="menu">
+                            <Menu/>
+                        </IconButton>
+                        <Typography variant="h6">
+                            News
+                        </Typography>
+                        {isLoggedIn && <Button color="inherit" onClick={logoutHandler}>Log out</Button>}
+                    </Toolbar>
+                    {status === 'loading' && <LinearProgress/>}
+                </AppBar>
+                <Container fixed>
+                    <Routes>
+                        <Route path={'/'} element={<TodolistsList/>}/>
+                        <Route path={'/login'} element={<Login/>}/>
+                    </Routes>
+                </Container>
+            </div>
+        </BrowserRouter>
     )
 }
+
+export default App
