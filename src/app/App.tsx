@@ -22,7 +22,7 @@ import {CircularProgress} from "@mui/material";
 import {logOutTC} from "../features/Login/authReducer";
 
 
-export function App() {
+export function     App() {
 
     const dispatch = useAppDispatch()
     const status = useAppSelector(state => state.app.status)

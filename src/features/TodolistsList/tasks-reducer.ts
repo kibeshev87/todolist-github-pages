@@ -89,8 +89,6 @@ export const fetchTasksTC = (todolistId: string) => (dispatch: Dispatch<TaskRedu
 }
 export const removeTaskTC = (taskId: string, todolistId: string) => (dispatch: Dispatch<TaskReducerActionsType>) => {
     dispatch(appSetStatusAC('loading'))
-    //dispatch(changeIsDisabledStatusAC(todolistId, 'loading'))
-
     dispatch(changeIsDisabledTaskAC(todolistId, taskId, 'loading'))
     todolistsAPI.deleteTask(todolistId, taskId)
         .then(res => {

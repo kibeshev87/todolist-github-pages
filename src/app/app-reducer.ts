@@ -60,8 +60,8 @@ export const initializeAppTC = () => (dispatch: Dispatch) => {
             dispatch(appSetErrorAC(err.message))
         })
         .finally(() => {
-            dispatch(appSetStatusAC('idle'))
             dispatch(isInitializedAC(true))
+            dispatch(appSetStatusAC('idle'))
         })
 }
 
