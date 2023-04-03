@@ -4,7 +4,7 @@ import {TodolistsList} from 'features/todolistsList/TodolistsList'
 import {ErrorSnackbar} from 'components/errorSnackbar/ErrorSnackbar'
 import {useSelector} from 'react-redux'
 import {initializeAppTC} from 'app/app.reducer'
-import {BrowserRouter, Navigate, Route, Routes} from 'react-router-dom'
+import {Navigate, Route, Routes} from 'react-router-dom'
 import {Login} from 'features/auth/Login'
 import {logoutTC} from 'features/auth/auth.reducer'
 import {
@@ -46,7 +46,6 @@ function App() {
     }
 
     return (
-        <BrowserRouter>
             <div className="App">
                 <ErrorSnackbar/>
                 <AppBar position="static">
@@ -63,14 +62,13 @@ function App() {
                 </AppBar>
                 <Container fixed>
                     <Routes>
-                        <Route path={'/'} element={<TodolistsList/>}/>
-                        <Route path={'/login'} element={<Login/>}/>
-                        <Route path={'404'} element={<h1>404: Page not found</h1>}/>
-                        <Route path={'*'} element={<Navigate to={'404'}/>}/>
+                        <Route path='/' element={<TodolistsList/>}/>
+                        <Route path='/login' element={<Login/>}/>
+                        <Route path='404' element={<h1 style={{textAlign: 'center'}}>404: Page not found</h1>}/>
+                        <Route path='*' element={<Navigate to={'404'}/>}/>
                     </Routes>
                 </Container>
             </div>
-        </BrowserRouter>
     )
 }
 
