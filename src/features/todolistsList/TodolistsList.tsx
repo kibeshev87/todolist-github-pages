@@ -19,7 +19,7 @@ export const TodolistsList = () => {
 
     useEffect(() => {
         dispatch(fetchTodolistsTC())
-    }, [dispatch])
+    }, [])
 
     const addTodolist = (title: string) => {
         dispatch(addTodolistTC(title))
