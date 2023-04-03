@@ -31,12 +31,10 @@ function App() {
     const isLoggedIn = useSelector(selectIsLoggedIn)
 
     useEffect(() => {
-        debugger
         dispatch(initializeAppTC())
     }, [])
 
     if (!isInitialized) {
-        debugger
         return <div
             style={{position: 'fixed', top: '30%', textAlign: 'center', width: '100%'}}>
             <CircularProgress/>
@@ -44,7 +42,6 @@ function App() {
     }
 
     const logoutHandler = () => {
-        debugger
         dispatch(logoutTC())
     }
 

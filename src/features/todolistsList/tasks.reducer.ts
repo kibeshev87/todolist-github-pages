@@ -4,6 +4,7 @@ import {handleServerAppError, handleServerNetworkError} from 'utils/error-utils'
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {todolistActions} from "features/todolistsList/todolists.reducer";
 import {appActions} from "app/app.reducer";
+import {AxiosError} from "axios";
 
 export type TasksStateType = {
     [key: string]: Array<TaskType>
@@ -27,16 +28,13 @@ const slice = createSlice({
             tasks.unshift(action.payload.task)
         },
 
-        updateTask: (state, action: PayloadAction<{
-            taskId: string,
-            model: UpdateDomainTaskModelType, todolistId: string
-        }>) => {
+        updateTask: (state, action: PayloadAction<{ taskId: string,model: UpdateDomainTaskModelType, todolistId: string }>) => {
+
             const tasks = state[action.payload.todolistId]
             const index = tasks.findIndex(t => t.id === action.payload.taskId)
-            if (index !== -1) tasks.splice(index, 1)
-            // state[action.payload.todolistId]
-            //     .find(t => t.id === action.payload.taskId
-            //         ? {...t, ...action.payload.model} : t)
+            if (index !== -1) {
+                tasks[index] = {...tasks[index], ...action.payload.model}
+            }
         },
 
         setTasks: (state, action: PayloadAction<{ tasks: TaskType[], todolistId: string }>) => {
@@ -75,10 +73,16 @@ export const fetchTasksTC = (todolistId: string): AppThunk => (dispatch) => {
 }
 
 export const removeTaskTC = (taskId: string, todolistId: string):AppThunk => (dispatch) => {
+    dispatch(appActions.setAppStatus({status: 'loading'}))
     todolistsApi.deleteTask(todolistId, taskId)
         .then(res => {
-            const action = tasksActions.removeTask({taskId, todolistId})
-            dispatch(action)
+            dispatch(tasksActions.removeTask({taskId, todolistId}))
+        })
+        .catch((err: AxiosError) => {
+            dispatch(appActions.setAppError({error: err.message}))
+        })
+        .finally(() => {
+            dispatch(appActions.setAppStatus({status: 'idle'}))
         })
 }
 
@@ -120,7 +124,7 @@ export const updateTaskTC = (taskId: string, domainModel: UpdateDomainTaskModelT
             status: task.status,
             ...domainModel
         }
-
+        dispatch(appActions.setAppStatus({status: 'loading'}))
         todolistsApi.updateTask(todolistId, taskId, apiModel)
             .then(res => {
                 if (res.data.resultCode === 0) {
@@ -132,6 +136,9 @@ export const updateTaskTC = (taskId: string, domainModel: UpdateDomainTaskModelT
             })
             .catch((error) => {
                 handleServerNetworkError(error, dispatch);
+            })
+            .finally(() => {
+                dispatch(appActions.setAppStatus({status: 'idle'}))
             })
     }
 

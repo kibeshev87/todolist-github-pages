@@ -26,18 +26,26 @@ const slice = createSlice({
         },
 
         changeTodolistTitle: (state, action: PayloadAction<{ todolistId: string, title: string }>) => {
-            state.find(tl => tl.id === action.payload.todolistId
-                ? {...tl, title: action.payload.title} : tl)
+            const todo = state.find(tl => tl.id === action.payload.todolistId)
+            if (todo) {
+                todo.title = action.payload.title
+            }
         },
-        changeTodolistFilter: (state, action: PayloadAction<{ todolistId: string, filter: FilterValuesType }>) => {
-            state.find(tl => tl.id === action.payload.todolistId
-                ? {...tl, filter: action.payload.filter} : tl)
-        },
-        changeTodolistEntityStatus: (state, action: PayloadAction<{ todolistId: string, entityStatus: RequestStatusType }>) => {
-            state.find(tl => tl.id === action.payload.todolistId
-                ? {...tl, entityStatus: action.payload.entityStatus} : tl)
 
+        changeTodolistFilter: (state, action: PayloadAction<{ todolistId: string, filter: FilterValuesType }>) => {
+            const todo = state.find(tl => tl.id === action.payload.todolistId)
+            if (todo) {
+                todo.filter = action.payload.filter
+            }
         },
+
+        changeTodolistEntityStatus: (state, action: PayloadAction<{ todolistId: string, entityStatus: RequestStatusType }>) => {
+            const todo = state.find(tl => tl.id === action.payload.todolistId)
+            if (todo) {
+                todo.entityStatus = action.payload.entityStatus
+            }
+        },
+
         setTodolists: (state, action: PayloadAction<{ todolists: TodolistType[] }>) => {
             return action.payload.todolists.map(tl => ({...tl, filter: 'all', entityStatus: 'idle'}))
         }
@@ -55,11 +63,12 @@ export const fetchTodolistsTC = (): AppThunk => {
         todolistsApi.getTodolists()
             .then((res) => {
                 dispatch(todolistActions.setTodolists({todolists: res.data}))
-                dispatch(appActions.setAppStatus({status: 'succeeded'}))
-
             })
             .catch(error => {
                 handleServerNetworkError(error, dispatch);
+            })
+            .finally(() => {
+                dispatch(appActions.setAppStatus({status: 'idle'}))
             })
     }
 }
@@ -72,6 +81,15 @@ export const removeTodolistTC = (todolistId: string): AppThunk => {
                 dispatch(todolistActions.removeTodolist({todolistId}))
                 dispatch(appActions.setAppStatus({status: 'succeeded'}))
             })
+            .catch(error => {
+                handleServerNetworkError(error, dispatch);
+            })
+            .finally(() => {
+                dispatch(appActions.setAppStatus({status: 'idle'}))
+            })
+            .finally(() => {
+                dispatch(appActions.setAppStatus({status: 'idle'}))
+            })
     }
 }
 export const addTodolistTC = (title: string): AppThunk => {
@@ -82,13 +100,27 @@ export const addTodolistTC = (title: string): AppThunk => {
                 dispatch(todolistActions.addTodolist({todolist: res.data.data.item}))
                 dispatch(appActions.setAppStatus({status: 'succeeded'}))
             })
+            .catch(error => {
+                handleServerNetworkError(error, dispatch);
+            })
+            .finally(() => {
+                dispatch(appActions.setAppStatus({status: 'idle'}))
+            })
     }
 }
 export const changeTodolistTitleTC = (todolistId: string, title: string): AppThunk => {
     return (dispatch) => {
+        dispatch(appActions.setAppStatus({status: 'loading'}))
         todolistsApi.updateTodolist(todolistId, title)
             .then((res) => {
                 dispatch(todolistActions.changeTodolistTitle({todolistId, title}))
+                dispatch(appActions.setAppStatus({status: 'succeeded'}))
+            })
+            .catch(error => {
+                handleServerNetworkError(error, dispatch);
+            })
+            .finally(() => {
+                dispatch(appActions.setAppStatus({status: 'idle'}))
             })
     }
 }
